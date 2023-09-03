@@ -143,3 +143,63 @@ Feature: grep by tag
                      | 12 | 34 |
                ```
     """
+
+  Scenario: output step with doc
+    Given a feature at "a.feature":
+    """
+    # language: zh-CN
+    @tag1
+    功能: 功能名字
+      场景: 场景1
+        假如存在:
+        \"\"\"
+        hello
+          world
+        \"\"\"
+    """
+    When grep "a.feature" and specify tag: "@tag1"
+    Then output should be:
+    """
+    a.feature: ```
+               # language: zh-CN
+               @tag1
+               功能: 功能名字
+
+                 场景: 场景1
+                   假如存在:
+                     \"\"\"
+                     hello
+                       world
+                     \"\"\"
+               ```
+    """
+
+  Scenario: output step with doc and doc type
+    Given a feature at "a.feature":
+    """
+    # language: zh-CN
+    @tag1
+    功能: 功能名字
+      场景: 场景1
+        假如存在:
+        \"\"\"type
+        hello
+          world
+        \"\"\"
+    """
+    When grep "a.feature" and specify tag: "@tag1"
+    Then output should be:
+    """
+    a.feature: ```
+               # language: zh-CN
+               @tag1
+               功能: 功能名字
+
+                 场景: 场景1
+                   假如存在:
+                     \"\"\" type
+                     hello
+                       world
+                     \"\"\"
+               ```
+    """

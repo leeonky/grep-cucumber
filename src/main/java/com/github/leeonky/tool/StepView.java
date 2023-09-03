@@ -3,6 +3,7 @@ package com.github.leeonky.tool;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Step;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.TableRow;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
@@ -40,8 +41,25 @@ public class StepView extends View {
     public void output(List<String> lines, int intentLevel) {
         String intent = String.join("", Collections.nCopies(intentLevel, "  "));
         lines.add(intent + getKeyword() + getName());
+        outputTableAndDoc().forEach(l -> lines.add(intent + "  " + l));
+    }
+
+    private List<String> outputTableAndDoc() {
         if (step.hasDataTable())
-            outputTable(calculateWidth()).forEach(l -> lines.add(intent + "  " + l));
+            return outputTable(calculateWidth());
+        else if (step.hasDocString())
+            return outputDocString();
+        else
+            return Collections.emptyList();
+    }
+
+    private List<String> outputDocString() {
+        return new ArrayList<>() {{
+            Step.DocString docString = step.getDocString();
+            add(docString.getDelimiter() + (docString.getMediaType().isBlank() ? "" : " " + docString.getMediaType()));
+            docString.getContent().lines().forEach(this::add);
+            add(docString.getDelimiter());
+        }};
     }
 
     private List<String> outputTable(int[] width) {
