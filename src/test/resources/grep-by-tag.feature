@@ -156,6 +156,34 @@ Feature: grep by tag
                ```
     """
 
+  Scenario: should remove empty rule when no matches scenario
+    Given a feature at "a.feature":
+    """
+    # language: zh-CN
+    功能: 功能1
+
+      Rule: rule
+
+        @tag
+        场景: 场景1
+
+      Rule: rule2
+        场景: 场景2
+    """
+    When grep "a.feature" and specify tag: "@tag"
+    Then output should be:
+    """
+    a.feature: ```
+               # language: zh-CN
+               功能: 功能1
+
+                 Rule: rule
+
+                   @tag
+                   场景: 场景1
+               ```
+    """
+
   Scenario: matches multiple tag groups
     Given a feature at "a.feature":
     """
