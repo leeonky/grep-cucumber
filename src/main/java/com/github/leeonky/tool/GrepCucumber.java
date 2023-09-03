@@ -14,14 +14,24 @@ public class GrepCucumber {
 
     @SneakyThrows
     public void select(Path input, Path output, String[]... tags) {
-        Messages.GherkinDocument gherkinDoc = Gherkin.fromPaths(Collections.singletonList(input.toString()),
+        if (input.toFile().isFile())
+            selectFile(input, output, tags, input.getParent());
+        else
+            Files.walk(input).filter(path -> path.toFile().isFile()).forEach(file -> selectFile(file, output, tags, input));
+    }
+
+    @SneakyThrows
+    private void selectFile(Path feature, Path output, String[][] tags, Path featureFolder) {
+        Messages.GherkinDocument gherkinDoc = Gherkin.fromPaths(Collections.singletonList(feature.toString()),
                 false, true, false, () -> "").findFirst().get().getGherkinDocument();
         TagGroups tagGroups = new TagGroups(tags);
         FeatureView featureView = new FeatureView(gherkinDoc.getFeature(), tagGroups);
         if (featureView.matches()) {
             List<String> lines = new ArrayList<>();
             featureView.output(lines, 0);
-            Files.writeString(output.resolve(input.getFileName()), String.join("\n", lines));
+            Path outputFile = output.resolve(featureFolder.relativize(feature));
+            Files.createDirectories(outputFile.getParent());
+            Files.writeString(outputFile, String.join("\n", lines));
         }
     }
 }

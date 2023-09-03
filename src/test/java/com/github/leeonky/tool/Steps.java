@@ -18,13 +18,13 @@ public class Steps {
 
     @Given("a feature at {string}:")
     public void aFeatureAt(String file, String content) {
-        tempFiles.createWithContent(file, content);
+        tempFiles.createWithContent("input/" + file, content);
     }
 
     @When("grep {string}")
     public void grep(String file) {
         tempFiles.createDirectory("output");
-        new GrepCucumber().select(tempFiles.getAbsolutePath(file), tempFiles.getAbsolutePath("output"));
+        new GrepCucumber().select(tempFiles.getAbsolutePath("input/" + file), tempFiles.getAbsolutePath("output"));
     }
 
     @Then("output should be:")
@@ -35,12 +35,12 @@ public class Steps {
     @When("grep {string} and specify tag: {string}")
     public void grepAndSpecifyTag(String file, String tags) {
         tempFiles.createDirectory("output");
-        new GrepCucumber().select(tempFiles.getAbsolutePath(file), tempFiles.getAbsolutePath("output"), tags.split(","));
+        new GrepCucumber().select(tempFiles.getAbsolutePath("input/" + file), tempFiles.getAbsolutePath("output"), tags.split(","));
     }
 
     @When("grep {string} and specify tag: {string} and {string}")
     public void grepAndSpecifyTagAnd(String file, String tags, String tags2) {
         tempFiles.createDirectory("output");
-        new GrepCucumber().select(tempFiles.getAbsolutePath(file), tempFiles.getAbsolutePath("output"), tags.split(","), tags2.split(","));
+        new GrepCucumber().select(tempFiles.getAbsolutePath("input/" + file), tempFiles.getAbsolutePath("output"), tags.split(","), tags2.split(","));
     }
 }

@@ -220,3 +220,32 @@ Feature: grep by tag
                ```
     """
 
+  Scenario: process all features in folder
+    Given a feature at "a.feature":
+      """
+      # language: zh-CN
+      @tag
+      功能: 功能
+      """
+    Given a feature at "sub/b.feature":
+      """
+      # language: zh-CN
+      @tag
+      功能: 功能2
+      """
+    When grep "/" and specify tag: "@tag"
+    Then output should be:
+      """
+      = {
+        a.feature: ```
+                   # language: zh-CN
+                   @tag
+                   功能: 功能
+                   ```
+        sub/b.feature: ```
+                       # language: zh-CN
+                       @tag
+                       功能: 功能2
+                       ```
+      }
+      """

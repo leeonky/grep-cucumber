@@ -1,5 +1,5 @@
 Feature: grep by tag
-  
+
   Scenario: output feature with correct format
     Given a feature at "a.feature":
     """

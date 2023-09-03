@@ -24,7 +24,9 @@ public class TempFiles {
 
     @SneakyThrows
     public void createWithContent(String fileName, String content) {
-        Files.writeString(getAbsolutePath(fileName), content);
+        Path path = getAbsolutePath(fileName);
+        Files.createDirectories(path.getParent());
+        Files.writeString(path, content);
     }
 
     public void createWithContent(String fileName, byte[] content) throws IOException {
@@ -32,7 +34,7 @@ public class TempFiles {
     }
 
     public Path getAbsolutePath(String fileName) {
-        return Paths.get(path, fileName);
+        return Paths.get(path, fileName.split("/"));
     }
 
     public Path getPath() {
