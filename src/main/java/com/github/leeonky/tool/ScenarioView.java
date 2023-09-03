@@ -20,7 +20,7 @@ public class ScenarioView extends View {
 
     @Override
     protected Stream<View> getChildren() {
-        return Stream.empty();
+        return scenario.getStepsList().stream().map(step -> new StepView(step, tagGroups));
     }
 
     @Override

@@ -88,3 +88,33 @@ Feature: grep by tag
                ```
     """
 
+  Scenario: output scenario step
+    Given a feature at "a.feature":
+    """
+    # language: zh-CN
+    @tag1
+    功能: 功能名字
+      场景: 场景1
+        假如存在1, "a"
+      Rule: 规则名字
+        场景: 场景2
+          假如存在2, "b"
+    """
+    When grep "a.feature" and specify tag: "@tag1"
+    Then output should be:
+    """
+    a.feature: ```
+               # language: zh-CN
+               @tag1
+               功能: 功能名字
+
+                 场景: 场景1
+                   假如存在1, "a"
+
+                 Rule: 规则名字
+
+                   场景: 场景2
+                     假如存在2, "b"
+               ```
+    """
+
