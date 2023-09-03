@@ -3,12 +3,27 @@ Feature: grep by tag
 #  path or file
 #  multiple tag group
 #  backgroud in feature
+#  Rule description
+#  Scenario description
 
   Scenario: no tag on feature and do not create file
     Given a feature at "a.feature":
       """
       # language: zh-CN
       功能: 功能
+      """
+    When grep "a.feature" and specify tag: "@tag"
+    Then output should be:
+      """
+      = []
+      """
+
+  Scenario: no tag on feature with only rule and do not create file
+    Given a feature at "a.feature":
+      """
+      # language: zh-CN
+      功能: 功能
+        Rule: rule
       """
     When grep "a.feature" and specify tag: "@tag"
     Then output should be:
@@ -111,6 +126,33 @@ Feature: grep by tag
 
                  @tag
                  场景: 场景1
+               ```
+    """
+
+  Scenario: matches one tag in scenario under rule
+    Given a feature at "a.feature":
+    """
+    # language: zh-CN
+    功能: 功能1
+
+      Rule: rule
+
+        @tag
+        场景: 场景1
+
+        场景: 场景2
+    """
+    When grep "a.feature" and specify tag: "@tag"
+    Then output should be:
+    """
+    a.feature: ```
+               # language: zh-CN
+               功能: 功能1
+
+                 Rule: rule
+
+                   @tag
+                   场景: 场景1
                ```
     """
 

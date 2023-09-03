@@ -30,10 +30,41 @@ public class GrepCucumber {
             outputFeature(input, output, feature);
         } else {
             Messages.GherkinDocument.Feature.Builder builder = feature.toBuilder();
-            for (int i = feature.getChildrenList().size() - 1; i >= 0; i--) {
-                Scenario scenario = builder.getChildren(i).getScenario();
-                if (!tagMatches(Stream.concat(scenario.getTagsList().stream(), feature.getTagsList().stream()).collect(toList()), tags))
-                    builder.removeChildren(i);
+            for (int ruleOrScenarioIndex = feature.getChildrenList().size() - 1; ruleOrScenarioIndex >= 0; ruleOrScenarioIndex--) {
+                Messages.GherkinDocument.Feature.FeatureChild children = builder.getChildren(ruleOrScenarioIndex);
+                switch (children.getValueCase()) {
+                    case RULE:
+                        Messages.GherkinDocument.Feature.FeatureChild.Rule rule = children.getRule();
+
+                        for (int scenarioIndex = rule.getChildrenCount() - 1; scenarioIndex >= 0; scenarioIndex--) {
+                            Messages.GherkinDocument.Feature.FeatureChild.RuleChild children1 = rule.getChildren(scenarioIndex);
+                            switch (children1.getValueCase()) {
+                                case BACKGROUND:
+                                    break;
+                                case SCENARIO:
+                                    if (!tagMatches(Stream.concat(children1.getScenario().getTagsList().stream(), feature.getTagsList().stream()).collect(toList()), tags)) {
+                                        builder.getChildrenBuilder(ruleOrScenarioIndex).getRuleBuilder().removeChildren(scenarioIndex);
+                                    }
+                                    break;
+                                case VALUE_NOT_SET:
+                                    break;
+                            }
+                        }
+
+
+                        if (rule.getChildrenCount() == 0)
+                            builder.removeChildren(ruleOrScenarioIndex);
+                        break;
+                    case BACKGROUND:
+                        break;
+                    case SCENARIO:
+                        Scenario scenario = children.getScenario();
+                        if (!tagMatches(Stream.concat(scenario.getTagsList().stream(), feature.getTagsList().stream()).collect(toList()), tags))
+                            builder.removeChildren(ruleOrScenarioIndex);
+                        break;
+//                    case VALUE_NOT_SET:
+//                        break;
+                }
             }
             if (builder.getChildrenCount() > 0)
                 outputFeature(input, output, builder.build());
@@ -62,12 +93,45 @@ public class GrepCucumber {
 
         feature.getChildrenList().forEach(featureChild -> {
             lines.add("");
-            Scenario scenario = featureChild.getScenario();
-            if (scenario.getTagsCount() > 0)
-                lines.add("  " + scenario.getTagsList().stream().map(Tag::getName).collect(Collectors.joining(" ")));
-            lines.add("  " + scenario.getKeyword() + ": " + scenario.getName());
+            switch (featureChild.getValueCase()) {
+                case RULE:
+                    outputRule(lines, featureChild.getRule(), 1);
+                    break;
+                case BACKGROUND:
+                    break;
+                case SCENARIO:
+                    outputScenario(lines, featureChild.getScenario(), 1);
+                    break;
+                case VALUE_NOT_SET:
+                    break;
+            }
         });
         Path resolve = output.resolve(input.getFileName());
         Files.writeString(resolve, String.join("\n", lines));
+    }
+
+    private void outputRule(List<String> lines, Messages.GherkinDocument.Feature.FeatureChild.Rule rule, int intentLevel) {
+        String intent = String.join("", Collections.nCopies(intentLevel, "  "));
+        lines.add(intent + rule.getKeyword() + ": " + rule.getName());
+
+        rule.getChildrenList().forEach(ruleChild -> {
+            lines.add("");
+            switch (ruleChild.getValueCase()) {
+                case BACKGROUND:
+                    break;
+                case SCENARIO:
+                    outputScenario(lines, ruleChild.getScenario(), intentLevel + 1);
+                    break;
+                case VALUE_NOT_SET:
+                    break;
+            }
+        });
+    }
+
+    private void outputScenario(List<String> lines, Scenario scenario, int intentLevel) {
+        String intent = String.join("", Collections.nCopies(intentLevel, "  "));
+        if (scenario.getTagsCount() > 0)
+            lines.add(intent + scenario.getTagsList().stream().map(Tag::getName).collect(Collectors.joining(" ")));
+        lines.add(intent + scenario.getKeyword() + ": " + scenario.getName());
     }
 }
