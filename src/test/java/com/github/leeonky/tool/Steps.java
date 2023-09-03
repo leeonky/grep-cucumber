@@ -37,4 +37,10 @@ public class Steps {
         tempFiles.createDirectory("output");
         new GrepCucumber().select(tempFiles.getAbsolutePath(file), tempFiles.getAbsolutePath("output"), tags.split(","));
     }
+
+    @When("grep {string} and specify tag: {string} and {string}")
+    public void grepAndSpecifyTagAnd(String file, String tags, String tags2) {
+        tempFiles.createDirectory("output");
+        new GrepCucumber().select(tempFiles.getAbsolutePath(file), tempFiles.getAbsolutePath("output"), tags.split(","), tags2.split(","));
+    }
 }

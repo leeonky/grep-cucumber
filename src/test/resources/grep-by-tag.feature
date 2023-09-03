@@ -2,6 +2,7 @@ Feature: grep by tag
 #  format
 #  path or file
 #  multiple tag group
+#  backgroud in feature
 
   Scenario: no tag on feature and do not create file
     Given a feature at "a.feature":
@@ -15,7 +16,7 @@ Feature: grep by tag
       = []
       """
 
-  Scenario: matches one tag
+  Scenario: matches one tag and no scenario
     Given a feature at "a.feature":
     """
     # language: zh-CN
@@ -32,7 +33,7 @@ Feature: grep by tag
                ```
     """
 
-  Scenario: matches two tags
+  Scenario: matches two tags and no scenario
     Given a feature at "a.feature":
     """
     # language: zh-CN
@@ -46,6 +47,91 @@ Feature: grep by tag
                # language: zh-CN
                @tag1 @tag2
                功能: 功能1
+               ```
+    """
+
+  Scenario: matches one tag in feature
+    Given a feature at "a.feature":
+    """
+    # language: zh-CN
+    @tag
+    功能: 功能1
+
+      场景: 场景1
+    """
+    When grep "a.feature" and specify tag: "@tag"
+    Then output should be:
+    """
+    a.feature: ```
+               # language: zh-CN
+               @tag
+               功能: 功能1
+
+                 场景: 场景1
+               ```
+    """
+
+  Scenario: matches two tags in feature and scenario
+    Given a feature at "a.feature":
+    """
+    # language: zh-CN
+    @tag1
+    功能: 功能1
+      @tag2
+      场景: 场景1
+    """
+    When grep "a.feature" and specify tag: "@tag2,@tag1"
+    Then output should be:
+    """
+    a.feature: ```
+               # language: zh-CN
+               @tag1
+               功能: 功能1
+
+                 @tag2
+                 场景: 场景1
+               ```
+    """
+
+  Scenario: matches one tag in scenario
+    Given a feature at "a.feature":
+    """
+    # language: zh-CN
+    功能: 功能1
+
+      @tag
+      场景: 场景1
+    """
+    When grep "a.feature" and specify tag: "@tag"
+    Then output should be:
+    """
+    a.feature: ```
+               # language: zh-CN
+               功能: 功能1
+
+                 @tag
+                 场景: 场景1
+               ```
+    """
+
+  Scenario: matches multiple tag groups
+    Given a feature at "a.feature":
+    """
+    # language: zh-CN
+    功能: 功能1
+
+      @tag
+      场景: 场景1
+    """
+    When grep "a.feature" and specify tag: "@not" and "@tag"
+    Then output should be:
+    """
+    a.feature: ```
+               # language: zh-CN
+               功能: 功能1
+
+                 @tag
+                 场景: 场景1
                ```
     """
 
@@ -86,4 +172,3 @@ Feature: grep by tag
                ```
     """
 
-#  Rule: selection
