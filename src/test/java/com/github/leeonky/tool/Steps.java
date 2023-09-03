@@ -1,18 +1,9 @@
 package com.github.leeonky.tool;
 
-import io.cucumber.gherkin.Gherkin;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.cucumber.messages.Messages;
-import lombok.SneakyThrows;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static com.github.leeonky.dal.Assertions.expect;
 
@@ -41,21 +32,9 @@ public class Steps {
         expect(tempFiles.getAbsolutePath("output")).should(expression);
     }
 
-    static class GrepCucumber {
-        @SneakyThrows
-        public void select(Path input, Path output) {
-            Messages.GherkinDocument gherkinDoc = Gherkin.fromPaths(Collections.singletonList(input.toString()),
-                    false, true, false, () -> "").findFirst().get().getGherkinDocument();
-
-            List<String> lines = new ArrayList<>();
-            Messages.GherkinDocument.Feature feature = gherkinDoc.getFeature();
-            lines.add("# language: " + feature.getLanguage());
-            lines.add(feature.getKeyword() + ": " + feature.getName());
-            Path resolve = output.resolve(input.getFileName());
-            Files.writeString(resolve, String.join("\n", lines));
-        }
+    @When("grep {string} and specify tag: {string}")
+    public void grepAndSpecifyTag(String file, String tags) {
+        tempFiles.createDirectory("output");
+        new GrepCucumber().select(tempFiles.getAbsolutePath(file), tempFiles.getAbsolutePath("output"), tags.split(","));
     }
-
-//    format
-//    path or file
 }
