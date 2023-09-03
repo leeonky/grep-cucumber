@@ -18,11 +18,10 @@ public class GrepCucumber {
                 false, true, false, () -> "").findFirst().get().getGherkinDocument();
         TagGroups tagGroups = new TagGroups(tags);
         FeatureView featureView = new FeatureView(gherkinDoc.getFeature(), tagGroups);
-        if (featureView.matches(tagGroups)) {
+        if (featureView.matches()) {
             List<String> lines = new ArrayList<>();
             featureView.output(lines, 0);
-            Path resolve = output.resolve(input.getFileName());
-            Files.writeString(resolve, String.join("\n", lines));
+            Files.writeString(output.resolve(input.getFileName()), String.join("\n", lines));
         }
     }
 }

@@ -2,46 +2,50 @@ package com.github.leeonky.tool;
 
 import io.cucumber.messages.Messages.GherkinDocument.Feature.FeatureChild.Rule;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Stream;
 
-public class RuleView implements View {
+public class RuleView extends View {
     private final Rule rule;
     private final FeatureView featureView;
-    private final TagGroups tagGroups;
 
     public RuleView(Rule rule, FeatureView featureView, TagGroups tagGroups) {
+        super(tagGroups);
         this.rule = rule;
         this.featureView = featureView;
-        this.tagGroups = tagGroups;
-    }
-
-    private Stream<View> getChildren() {
-        return rule.getChildrenList().stream().map(featureChild -> {
-            switch (featureChild.getValueCase()) {
-                case SCENARIO:
-                    return (View) new ScenarioView(featureChild.getScenario(), featureView);
-                case BACKGROUND:
-                case VALUE_NOT_SET:
-                    return null;
-            }
-            return null;
-        }).filter(view -> view.matches(tagGroups));
     }
 
     @Override
-    public void output(List<String> lines, int intentLevel) {
-        String intent = String.join("", Collections.nCopies(intentLevel, "  "));
-        lines.add(intent + rule.getKeyword() + ": " + rule.getName());
-        getChildren().forEach(ob -> {
-            lines.add("");
-            ob.output(lines, intentLevel + 1);
+    protected Stream<View> getChildren() {
+        return rule.getChildrenList().stream().map(featureChild -> {
+            switch (featureChild.getValueCase()) {
+                case SCENARIO:
+                    return new ScenarioView(featureChild.getScenario(), featureView, tagGroups);
+                case BACKGROUND:
+                    return new BackgroundView(featureChild.getBackground(), tagGroups);
+                case VALUE_NOT_SET:
+                default:
+                    return null;
+            }
         });
     }
 
     @Override
-    public boolean matches(TagGroups tagGroups) {
-        return getChildren().findAny().isPresent();
+    protected String getDescription() {
+        return rule.getDescription();
+    }
+
+    @Override
+    protected String getName() {
+        return rule.getName();
+    }
+
+    @Override
+    protected String getKeyword() {
+        return rule.getKeyword();
+    }
+
+    @Override
+    public boolean matches() {
+        return filterChildren().anyMatch(ScenarioView.class::isInstance);
     }
 }

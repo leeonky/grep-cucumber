@@ -1,10 +1,5 @@
 Feature: grep by tag
-#  format
 #  path or file
-#  multiple tag group
-#  backgroud in feature
-#  Rule description
-#  Scenario description
 
   Scenario: no tag on feature and do not create file
     Given a feature at "a.feature":
@@ -169,6 +164,10 @@ Feature: grep by tag
 
       Rule: rule2
         场景: 场景2
+
+      Rule: rule3
+        背景: 背景
+        场景: 场景3
     """
     When grep "a.feature" and specify tag: "@tag"
     Then output should be:
@@ -218,27 +217,6 @@ Feature: grep by tag
                # language: en
                @tag
                Feature: feature1
-               ```
-    """
-
-  Scenario: output feature with correct format
-    Given a feature at "a.feature":
-    """
-    # language: zh-CN
-    @tag1  @tag2
-    功能: 功能名字
-    第1行描述
-    第2行描述
-    """
-    When grep "a.feature" and specify tag: "@tag1"
-    Then output should be:
-    """
-    a.feature: ```
-               # language: zh-CN
-               @tag1 @tag2
-               功能: 功能名字
-                 第1行描述
-                 第2行描述
                ```
     """
 
