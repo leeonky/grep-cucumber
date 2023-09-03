@@ -118,3 +118,28 @@ Feature: grep by tag
                ```
     """
 
+  Scenario: output step with table
+    Given a feature at "a.feature":
+    """
+    # language: zh-CN
+    @tag1
+    功能: 功能名字
+      场景: 场景1
+        假如存在:
+          |a|b|
+          |12|34|
+    """
+    When grep "a.feature" and specify tag: "@tag1"
+    Then output should be:
+    """
+    a.feature: ```
+               # language: zh-CN
+               @tag1
+               功能: 功能名字
+
+                 场景: 场景1
+                   假如存在:
+                     | a  | b  |
+                     | 12 | 34 |
+               ```
+    """
