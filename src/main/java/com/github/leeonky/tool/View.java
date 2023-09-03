@@ -27,15 +27,21 @@ public abstract class View {
         if (!getDescription().isBlank())
             getDescription().lines().forEach(description -> lines.add(intent + "  " + description.trim()));
 
-        filterChildren().forEach(ob -> {
-            lines.add("");
-            ob.output(lines, intentLevel + 1);
-        });
+        filterChildren().forEach(view -> view.newLine(lines).output(lines, intentLevel + 1));
     }
 
-    protected abstract Stream<View> getChildren();
+    protected View newLine(List<String> lines) {
+        lines.add("");
+        return this;
+    }
 
-    protected abstract String getDescription();
+    protected Stream<View> getChildren() {
+        return null;
+    }
+
+    protected String getDescription() {
+        return "";
+    }
 
     protected abstract String getName();
 

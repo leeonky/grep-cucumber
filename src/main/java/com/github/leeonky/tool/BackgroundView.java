@@ -14,7 +14,7 @@ public class BackgroundView extends View {
 
     @Override
     protected Stream<View> getChildren() {
-        return Stream.empty();
+        return background.getStepsList().stream().map(step -> new StepView(step, tagGroups));
     }
 
     @Override
