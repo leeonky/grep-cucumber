@@ -46,7 +46,7 @@ public class StepView extends View {
 
     private List<String> outputTableAndDoc() {
         if (step.hasDataTable())
-            return outputTable(calculateWidth());
+            return outputTable(step.getDataTable().getRowsList());
         else if (step.hasDocString())
             return outputDocString();
         else
@@ -62,18 +62,20 @@ public class StepView extends View {
         }};
     }
 
-    private List<String> outputTable(int[] width) {
-        return step.getDataTable().getRowsList().stream().map(row -> {
+    public static List<String> outputTable(List<TableRow> rowsList) {
+        int[] width = calculateWidth(rowsList);
+        return rowsList.stream().map(row -> {
             StringJoiner joiner = new StringJoiner(" | ", "| ", " |");
-            for (int cell = 0; cell < row.getCellsList().size(); cell++)
+            for (int cell = 0; cell < row.getCellsList().size(); cell++) {
                 joiner.add(String.format(String.format("%%-%ds", width[cell]), row.getCellsList().get(cell).getValue()));
+            }
             return joiner.toString();
         }).collect(Collectors.toList());
     }
 
-    private int[] calculateWidth() {
-        int[] width = new int[step.getDataTable().getRows(0).getCellsCount()];
-        for (TableRow row : step.getDataTable().getRowsList())
+    private static int[] calculateWidth(List<TableRow> rowsList) {
+        int[] width = new int[rowsList.get(0).getCellsCount()];
+        for (TableRow row : rowsList)
             for (int cell = 0; cell < row.getCellsList().size(); cell++)
                 width[cell] = Math.max(width[cell], row.getCells(cell).getValue().length());
         return width;

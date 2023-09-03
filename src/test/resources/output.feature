@@ -1,11 +1,5 @@
 Feature: grep by tag
-#  format
-#  background in feature
-#  step
-#  table
-#  doc
-#  outline
-
+  
   Scenario: output feature with correct format
     Given a feature at "a.feature":
     """
@@ -201,5 +195,39 @@ Feature: grep by tag
                      hello
                        world
                      \"\"\"
+               ```
+    """
+
+  Scenario: output scenario outline
+    Given a feature at "a.feature":
+    """
+    # language: zh-CN
+    @tag1
+    功能: 功能名字
+      场景大纲: 场景<a>
+        假如存在<b>:
+        \"\"\"type<d>
+        hello<c>
+        \"\"\"
+        例子:
+          | a | b | c | d |
+          | 1 | 2 | 3 | 40 |
+    """
+    When grep "a.feature" and specify tag: "@tag1"
+    Then output should be:
+    """
+    a.feature: ```
+               # language: zh-CN
+               @tag1
+               功能: 功能名字
+
+                 场景大纲: 场景<a>
+                   假如存在<b>:
+                     \"\"\" type<d>
+                     hello<c>
+                     \"\"\"
+                   例子:
+                     | a | b | c | d  |
+                     | 1 | 2 | 3 | 40 |
                ```
     """

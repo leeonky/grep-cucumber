@@ -3,9 +3,12 @@ package com.github.leeonky.tool;
 import io.cucumber.messages.Messages;
 import io.cucumber.messages.Messages.GherkinDocument.Feature.Scenario;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.github.leeonky.tool.StepView.outputTable;
 import static java.util.stream.Collectors.toList;
 
 public class ScenarioView extends View {
@@ -16,6 +19,20 @@ public class ScenarioView extends View {
         super(tagGroups);
         this.scenario = scenario;
         this.featureView = featureView;
+    }
+
+    @Override
+    public void output(List<String> lines, int intentLevel) {
+        super.output(lines, intentLevel);
+
+        String intent = String.join("", Collections.nCopies(intentLevel + 1, "  "));
+        for (Scenario.Examples examples : scenario.getExamplesList()) {
+            lines.add(intent + examples.getKeyword() + ":");
+            outputTable(new ArrayList<>() {{
+                add(examples.getTableHeader());
+                addAll(examples.getTableBodyList());
+            }}).forEach(l -> lines.add(intent + "  " + l));
+        }
     }
 
     @Override
