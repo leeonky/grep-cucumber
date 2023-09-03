@@ -1,0 +1,46 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    providedRuntime
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+dependencies {
+//    implementation group: 'org.junit', name: 'junit-bom', version: '5.7.0', ext: 'pom'
+    annotationProcessor('org.projectlombok:lombok:1.18.18')
+//    implementation group: 'org.mockito', name: 'mockito-core', version: '4.4.0'
+    implementation('org.projectlombok:lombok:1.18.18')
+    implementation("io.cucumber:cucumber-java:6.10.2")
+//    implementation("io.cucumber:cucumber-spring:6.10.2")
+//    implementation("org.assertj:assertj-core:3.19.0")
+//    implementation "org.awaitility:awaitility:4.0.3"
+//    testImplementation "com.github.leeonky:jfactory:0.3.18"
+//    testImplementation "com.github.leeonky:jfactory-cucumber:0.1.21"
+    testImplementation "com.github.leeonky:DAL-java:0.3.19"
+    testImplementation "com.github.leeonky:DAL-extension-basic:0.0.12"
+//    implementation "com.github.leeonky:jfactory-property-value:0.0.10"
+    testImplementation "org.reflections:reflections:0.9.12"
+    testImplementation "commons-io:commons-io:2.11.0"
+    testAnnotationProcessor('org.projectlombok:lombok:1.18.18')
+//    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: '2.13.4'
+//    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.4'
+//    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.4'
+//    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.13.4'
+}
+
+task cucumber(type: JavaExec) {
+    dependsOn assemble, testClasses
+    main = "io.cucumber.core.cli.Main"
+    classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+    environment "SPRING_PROFILES_ACTIVE", "test"
+    args = ['--plugin', 'pretty',
+            '--glue', 'com.odde.atddv2',
+            '--glue', 'com.github.leeonky.jfactory.cucumber',
+            'src/test/resources']
+}
