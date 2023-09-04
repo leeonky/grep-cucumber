@@ -13,18 +13,17 @@ import java.util.List;
 public class GrepCucumber {
 
     @SneakyThrows
-    public void select(Path input, Path output, String[]... tags) {
+    public void select(Path input, Path output, TagGroups tagGroups) {
         if (input.toFile().isFile())
-            selectFile(input, output, tags, input.getParent());
+            selectFile(input, output, input.getParent(), tagGroups);
         else
-            Files.walk(input).filter(path -> path.toFile().isFile()).forEach(file -> selectFile(file, output, tags, input));
+            Files.walk(input).filter(path -> path.toFile().isFile()).forEach(file -> selectFile(file, output, input, tagGroups));
     }
 
     @SneakyThrows
-    private void selectFile(Path feature, Path output, String[][] tags, Path featureFolder) {
+    private void selectFile(Path feature, Path output, Path featureFolder, TagGroups tagGroups) {
         Messages.GherkinDocument gherkinDoc = Gherkin.fromPaths(Collections.singletonList(feature.toString()),
                 false, true, false, () -> "").findFirst().get().getGherkinDocument();
-        TagGroups tagGroups = new TagGroups(tags);
         FeatureView featureView = new FeatureView(gherkinDoc.getFeature(), tagGroups);
         if (featureView.matches()) {
             List<String> lines = new ArrayList<>();

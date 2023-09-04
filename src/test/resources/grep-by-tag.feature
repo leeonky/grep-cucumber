@@ -1,5 +1,4 @@
 Feature: grep by tag
-#  path or file
 
   Scenario: no tag on feature and do not create file
     Given a feature at "a.feature":
@@ -249,3 +248,18 @@ Feature: grep by tag
                        ```
       }
       """
+
+  Scenario: matches with customized tag group
+    Given a feature at "a.feature":
+    """
+    # language: zh-CN
+    功能: 功能1
+    """
+    When grep "a.feature" and specify tag: "@tag" and always matching tag group
+    Then output should be:
+    """
+    a.feature: ```
+               # language: zh-CN
+               功能: 功能1
+               ```
+    """
