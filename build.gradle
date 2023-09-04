@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'maven'
 
 repositories {
     mavenCentral()
@@ -38,9 +39,10 @@ task cucumber(type: JavaExec) {
     dependsOn assemble, testClasses
     main = "io.cucumber.core.cli.Main"
     classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
-    environment "SPRING_PROFILES_ACTIVE", "test"
     args = ['--plugin', 'pretty',
-            '--glue', 'com.odde.atddv2',
-            '--glue', 'com.github.leeonky.jfactory.cucumber',
+            '--glue', 'com.github.leeonky',
             'src/test/resources']
 }
+
+group = 'com.github.leeonky'
+version = '0.0.1' + System.env.VERSION_SCOPE
